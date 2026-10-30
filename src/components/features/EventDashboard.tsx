@@ -160,23 +160,35 @@ export default function EventDashboard({ event, onEventUpdate }: EventDashboardP
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 overflow-x-auto mb-6 bg-white rounded-xl border border-gray-100 p-1.5 shadow-sm">
+      <div
+        role="tablist"
+        aria-label="Event dashboard sections"
+        className="flex gap-1 overflow-x-auto mb-6 bg-white rounded-xl border border-gray-200 p-1.5 shadow-sm"
+      >
         {tabs.map((tab) => (
           <button
             key={tab.id}
+            role="tab"
+            id={`tab-${tab.id}`}
+            aria-selected={activeTab === tab.id}
+            aria-controls={`panel-${tab.id}`}
+            tabIndex={activeTab === tab.id ? 0 : -1}
             onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-semibold whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 transition-colors ${
               activeTab === tab.id
                 ? 'bg-gray-900 text-white shadow-sm'
-                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                : 'text-gray-700 hover:text-gray-950 hover:bg-gray-100'
             }`}
           >
-            {tab.icon}
-            <span className="hidden sm:inline">{tab.label}</span>
+            <span aria-hidden="true">{tab.icon}</span>
+            <span>{tab.label}</span>
             {tab.count !== undefined && tab.count > 0 && (
-              <span className={`text-xs px-1.5 py-0.5 rounded-full ${
-                activeTab === tab.id ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-500'
-              }`}>
+              <span
+                className={`text-xs px-1.5 py-0.5 rounded-full font-bold ${
+                  activeTab === tab.id ? 'bg-white/20 text-white' : 'bg-gray-200 text-gray-800'
+                }`}
+                aria-label={`${tab.count} items`}
+              >
                 {tab.count}
               </span>
             )}
@@ -186,11 +198,17 @@ export default function EventDashboard({ event, onEventUpdate }: EventDashboardP
 
       {/* Tab Content */}
       {loading ? (
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="h-8 w-8 text-gray-300 animate-spin" />
+        <div className="flex items-center justify-center py-20" role="status" aria-label="Loading event details">
+          <Loader2 className="h-8 w-8 text-gray-500 animate-spin" aria-hidden="true" />
+          <span className="sr-only">Loading event details...</span>
         </div>
       ) : (
-        <div className="animate-fade-in">
+        <div
+          role="tabpanel"
+          id={`panel-${activeTab}`}
+          aria-labelledby={`tab-${activeTab}`}
+          className="animate-fade-in focus:outline-none"
+        >
           {activeTab === 'overview' && (
             <OverviewTab event={event} onEventUpdate={onEventUpdate} />
           )}
@@ -490,36 +508,40 @@ function TimelineTab({
                     >
                       <button
                         onClick={() => toggleComplete(item)}
-                        className={`mt-0.5 flex-shrink-0 w-5 h-5 rounded-md border-2 flex items-center justify-center transition-colors ${
+                        role="checkbox"
+                        aria-checked={item.is_completed}
+                        aria-label={`Mark milestone "${item.title}" as ${item.is_completed ? 'incomplete' : 'complete'}`}
+                        className={`mt-0.5 flex-shrink-0 w-5 h-5 rounded-md border-2 flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 transition-colors ${
                           item.is_completed
-                            ? 'bg-emerald-500 border-emerald-500 text-white'
-                            : 'border-gray-300 hover:border-gray-400'
+                            ? 'bg-emerald-600 border-emerald-600 text-white'
+                            : 'border-gray-400 hover:border-gray-600'
                         }`}
                       >
-                        {item.is_completed && <Check className="h-3 w-3" />}
+                        {item.is_completed && <Check className="h-3 w-3" aria-hidden="true" />}
                       </button>
                       <div className="flex-1 min-w-0">
-                        <p className={`text-sm font-medium ${item.is_completed ? 'line-through text-gray-400' : 'text-gray-800'}`}>
+                        <p className={`text-sm font-semibold ${item.is_completed ? 'line-through text-gray-500' : 'text-gray-900'}`}>
                           {item.title}
                         </p>
                         {item.description && (
-                          <p className="text-xs text-gray-400 mt-0.5">{item.description}</p>
+                          <p className="text-xs text-gray-600 mt-0.5">{item.description}</p>
                         )}
                         <div className="flex items-center gap-2 mt-1">
                           {item.time_slot && (
-                            <span className="text-xs text-gray-400 flex items-center gap-1">
-                              <Clock className="h-3 w-3" /> {item.time_slot}
+                            <span className="text-xs text-gray-600 font-medium flex items-center gap-1">
+                              <Clock className="h-3 w-3" aria-hidden="true" /> {item.time_slot}
                             </span>
                           )}
-                          {item.priority === 'high' && <Badge color="text-orange-700" bg="bg-orange-100">High</Badge>}
-                          {item.priority === 'critical' && <Badge color="text-red-700" bg="bg-red-100">Critical</Badge>}
+                          {item.priority === 'high' && <Badge color="text-orange-800" bg="bg-orange-100">High Priority</Badge>}
+                          {item.priority === 'critical' && <Badge color="text-red-800" bg="bg-red-100">Critical Priority</Badge>}
                         </div>
                       </div>
                       <button
                         onClick={() => handleDelete(item.id)}
-                        className="p-1 text-gray-300 hover:text-red-400 transition-colors"
+                        aria-label={`Delete milestone "${item.title}"`}
+                        className="p-1 text-gray-400 hover:text-red-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 rounded transition-colors"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-4 w-4" aria-hidden="true" />
                       </button>
                     </div>
                   ))}
@@ -688,19 +710,26 @@ function BudgetTab({
                     <div key={item.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
                       <button
                         onClick={() => handleTogglePaid(item)}
-                        className={`flex-shrink-0 w-5 h-5 rounded-md border-2 flex items-center justify-center transition-colors ${
-                          item.is_paid ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-gray-300 hover:border-gray-400'
+                        role="checkbox"
+                        aria-checked={item.is_paid}
+                        aria-label={`Mark expense "${item.item_name}" as ${item.is_paid ? 'unpaid' : 'paid'}`}
+                        className={`flex-shrink-0 w-5 h-5 rounded-md border-2 flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 transition-colors ${
+                          item.is_paid ? 'bg-emerald-600 border-emerald-600 text-white' : 'border-gray-400 hover:border-gray-600'
                         }`}
                       >
-                        {item.is_paid && <Check className="h-3 w-3" />}
+                        {item.is_paid && <Check className="h-3 w-3" aria-hidden="true" />}
                       </button>
-                      <span className={`flex-1 text-sm ${item.is_paid ? 'text-gray-400 line-through' : 'text-gray-700'}`}>
+                      <span className={`flex-1 text-sm font-medium ${item.is_paid ? 'text-gray-500 line-through' : 'text-gray-800'}`}>
                         {item.item_name}
                       </span>
-                      <span className="text-xs text-gray-400">{formatCurrency(Number(item.estimated_cost))}</span>
-                      <span className="text-xs font-medium text-gray-700">{formatCurrency(Number(item.actual_cost))}</span>
-                      <button onClick={() => handleDelete(item.id)} className="p-1 text-gray-300 hover:text-red-400 transition-colors">
-                        <Trash2 className="h-3.5 w-3.5" />
+                      <span className="text-xs text-gray-600">{formatCurrency(Number(item.estimated_cost))}</span>
+                      <span className="text-xs font-semibold text-gray-900">{formatCurrency(Number(item.actual_cost))}</span>
+                      <button
+                        onClick={() => handleDelete(item.id)}
+                        aria-label={`Delete budget item "${item.item_name}"`}
+                        className="p-1 text-gray-400 hover:text-red-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 rounded transition-colors"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
                       </button>
                     </div>
                   ))}
@@ -825,15 +854,19 @@ function VendorsTab({
                       <span className="text-sm font-semibold text-gray-900">{vendor.vendor_name}</span>
                       <Badge color={statusConfig.color} bg={statusConfig.bg}>{statusConfig.label}</Badge>
                     </div>
-                    <span className="text-xs text-gray-400">{vendor.category}</span>
+                    <span className="text-xs text-gray-600 font-medium">{vendor.category}</span>
                   </div>
-                  <button onClick={() => handleDelete(vendor.id)} className="p-1 text-gray-300 hover:text-red-400 transition-colors">
-                    <Trash2 className="h-4 w-4" />
+                  <button
+                    onClick={() => handleDelete(vendor.id)}
+                    aria-label={`Delete vendor ${vendor.vendor_name}`}
+                    className="p-1 text-gray-400 hover:text-red-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 rounded transition-colors"
+                  >
+                    <Trash2 className="h-4 w-4" aria-hidden="true" />
                   </button>
                 </div>
 
                 {(vendor.contact_person || vendor.email || vendor.phone) && (
-                  <div className="text-xs text-gray-500 space-y-0.5 mb-3">
+                  <div className="text-xs text-gray-700 space-y-0.5 mb-3 font-medium">
                     {vendor.contact_person && <p>👤 {vendor.contact_person}</p>}
                     {vendor.email && <p>📧 {vendor.email}</p>}
                     {vendor.phone && <p>📞 {vendor.phone}</p>}
@@ -841,17 +874,17 @@ function VendorsTab({
                 )}
 
                 {Number(vendor.price_quote) > 0 && (
-                  <p className="text-sm font-semibold text-gray-700 mb-3">
+                  <p className="text-sm font-bold text-gray-900 mb-3">
                     Quote: {formatCurrency(Number(vendor.price_quote))}
                   </p>
                 )}
 
                 {vendor.notes && (
-                  <p className="text-xs text-gray-400 mb-3">{vendor.notes}</p>
+                  <p className="text-xs text-gray-600 mb-3">{vendor.notes}</p>
                 )}
 
                 {/* Status progression buttons */}
-                <div className="flex gap-1.5">
+                <div className="flex gap-1.5" role="group" aria-label={`Status for ${vendor.vendor_name}`}>
                   {(['researching', 'contacted', 'contract_signed', 'paid'] as const).map((s) => {
                     const cfg = VENDOR_STATUS_CONFIG[s];
                     const isActive = s === vendor.status;
@@ -859,10 +892,12 @@ function VendorsTab({
                       <button
                         key={s}
                         onClick={() => updateStatus(vendor, s)}
-                        className={`flex-1 text-xs py-1.5 rounded-lg transition-colors font-medium ${
+                        aria-pressed={isActive}
+                        aria-label={`Set status of ${vendor.vendor_name} to ${cfg.label}`}
+                        className={`flex-1 text-xs py-1.5 rounded-lg transition-colors font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 ${
                           isActive
                             ? `${cfg.bg} ${cfg.color}`
-                            : 'bg-gray-50 text-gray-400 hover:bg-gray-100'
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                         }`}
                       >
                         {cfg.label}
@@ -1007,18 +1042,18 @@ function GuestsTab({
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium text-gray-800 truncate">{guest.full_name}</span>
+                      <span className="text-sm font-semibold text-gray-900 truncate">{guest.full_name}</span>
                       {guest.plus_ones > 0 && (
-                        <span className="text-xs text-gray-400">+{guest.plus_ones}</span>
+                        <span className="text-xs text-gray-600 font-medium">+{guest.plus_ones} plus-one</span>
                       )}
                     </div>
-                    <div className="flex items-center gap-2 text-xs text-gray-400">
+                    <div className="flex items-center gap-2 text-xs text-gray-600 font-medium">
                       {guest.email && <span>{guest.email}</span>}
                       {guest.dietary_restrictions && <span>• {guest.dietary_restrictions}</span>}
                       {guest.group_or_table && <span>• {guest.group_or_table}</span>}
                     </div>
                   </div>
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1.5" role="group" aria-label={`RSVP status for ${guest.full_name}`}>
                     {(['confirmed', 'pending', 'declined'] as const).map((s) => {
                       const cfg = RSVP_CONFIG[s];
                       const isActive = s === guest.rsvp_status;
@@ -1026,8 +1061,10 @@ function GuestsTab({
                         <button
                           key={s}
                           onClick={() => updateRSVP(guest, s)}
-                          className={`text-xs px-2.5 py-1 rounded-lg transition-colors font-medium ${
-                            isActive ? `${cfg.bg} ${cfg.color}` : 'text-gray-400 hover:bg-gray-100'
+                          aria-pressed={isActive}
+                          aria-label={`Mark ${guest.full_name} as ${cfg.label}`}
+                          className={`text-xs px-2.5 py-1 rounded-lg transition-colors font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 ${
+                            isActive ? `${cfg.bg} ${cfg.color}` : 'text-gray-600 hover:bg-gray-100'
                           }`}
                         >
                           {cfg.label}
@@ -1035,8 +1072,12 @@ function GuestsTab({
                       );
                     })}
                   </div>
-                  <button onClick={() => handleDelete(guest.id)} className="p-1 text-gray-300 hover:text-red-400 transition-colors">
-                    <Trash2 className="h-4 w-4" />
+                  <button
+                    onClick={() => handleDelete(guest.id)}
+                    aria-label={`Remove guest ${guest.full_name}`}
+                    className="p-1 text-gray-400 hover:text-red-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 rounded transition-colors"
+                  >
+                    <Trash2 className="h-4 w-4" aria-hidden="true" />
                   </button>
                 </div>
               );
@@ -1194,8 +1235,12 @@ function IdeasTab({
                 <Card hover>
                   <div className="flex items-start justify-between mb-2">
                     <Badge>{catLabel}</Badge>
-                    <button onClick={() => handleDelete(idea.id)} className="p-1 text-gray-300 hover:text-red-400 transition-colors">
-                      <Trash2 className="h-4 w-4" />
+                    <button
+                      onClick={() => handleDelete(idea.id)}
+                      aria-label={`Delete idea "${idea.title}"`}
+                      className="p-1 text-gray-400 hover:text-red-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 rounded transition-colors"
+                    >
+                      <Trash2 className="h-4 w-4" aria-hidden="true" />
                     </button>
                   </div>
                   <h4 className="font-semibold text-gray-900 mb-1.5">{idea.title}</h4>

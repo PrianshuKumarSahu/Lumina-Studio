@@ -1,20 +1,51 @@
 import { NextRequest } from 'next/server';
 import { askGemini, getEventPlannerSystemPrompt } from '@/lib/backend/gemini';
+import { checkRateLimit, sanitizeInput, PlanRequestSchema } from '@/lib/backend/security';
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { eventType, guestCount, budget, targetDate, location, theme, additionalNotes } = body;
+    // 1. Rate Limiting Protection
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || 'anonymous';
+    const rateCheck = checkRateLimit(`plan-${ip}`, 15, 60000);
+    if (!rateCheck.success) {
+      return Response.json(
+        { error: 'Rate limit exceeded. Please wait a minute before requesting another blueprint.' },
+        {
+          status: 429,
+          headers: {
+            'Retry-After': Math.ceil(rateCheck.resetMs / 1000).toString(),
+            'X-RateLimit-Remaining': '0',
+          },
+        }
+      );
+    }
+
+    // 2. Body parsing & Zod Validation
+    const rawBody = await request.json();
+    const parseResult = PlanRequestSchema.safeParse(rawBody);
+
+    if (!parseResult.success) {
+      const issue = parseResult.error.issues[0]?.message || 'Invalid request parameters';
+      return Response.json({ error: issue }, { status: 400 });
+    }
+
+    const { eventType, guestCount, budget, targetDate, location, theme, additionalNotes } = parseResult.data;
+
+    // 3. Input Sanitization
+    const cleanLocation = sanitizeInput(location);
+    const cleanTheme = sanitizeInput(theme);
+    const cleanNotes = sanitizeInput(additionalNotes);
+    const cleanDate = sanitizeInput(targetDate);
 
     const prompt = `Generate a comprehensive event plan with the following details:
 
 **Event Type:** ${eventType}
 **Guest Count:** ${guestCount}
 **Total Budget:** ₹${budget}
-**Target Date:** ${targetDate || 'Not set yet'}
-**Location/City:** ${location || 'Not specified'}
-**Theme/Vibe:** ${theme || 'Open to suggestions'}
-**Additional Notes:** ${additionalNotes || 'None'}
+**Target Date:** ${cleanDate || 'Not set yet'}
+**Location/City:** ${cleanLocation || 'Not specified'}
+**Theme/Vibe:** ${cleanTheme || 'Open to suggestions'}
+**Additional Notes:** ${cleanNotes || 'None'}
 
 Please provide:
 
@@ -40,7 +71,7 @@ Please provide:
 
 4. **Vendor Checklist** — Top 5–7 vendor categories to book, with 2 questions to ask each.
 
-5. **Creative Ideas** — 5 unique, personalized ideas for making this event memorable (decor themes, signature drinks, activities, etc.).
+5. **Creative Ideas** — 5 unique, personalized ideas for making this event memorable.
 
 6. **Color Palette** — Suggest 3–4 hex color codes that match the theme/vibe.
 
@@ -48,7 +79,14 @@ Format everything clearly with headers and bullet points.`;
 
     const result = await askGemini(prompt, getEventPlannerSystemPrompt());
 
-    return Response.json({ result });
+    return Response.json(
+      { result },
+      {
+        headers: {
+          'X-RateLimit-Remaining': rateCheck.remaining.toString(),
+        },
+      }
+    );
   } catch (error) {
     console.error('Plan generation error:', error);
     const message = error instanceof Error ? error.message : 'Plan generation failed';

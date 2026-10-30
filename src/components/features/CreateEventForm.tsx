@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createEvent } from '@/lib/database/queries';
-import { EVENT_TYPE_LABELS, type EventType } from '@/lib/database/types';
+import { type EventType } from '@/lib/database/types';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import Textarea from '@/components/ui/Textarea';
@@ -86,17 +86,17 @@ export default function CreateEventForm() {
   // Step 0: Choose event type
   if (step === 0) {
     return (
-      <div className="space-y-8 animate-fade-in">
+      <section aria-labelledby="choose-celebration-title" className="space-y-8 animate-fade-in">
         <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
+          <h1 id="choose-celebration-title" className="text-3xl font-bold text-gray-900 tracking-tight">
             What are we celebrating?
           </h1>
-          <p className="text-gray-500 text-base">
+          <p className="text-gray-600 text-base">
             Choose your event type and we&apos;ll tailor everything to match
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-3xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-3xl mx-auto" role="group" aria-label="Event Types">
           {EVENT_TYPES.map((type) => (
             <button
               key={type.value}
@@ -104,35 +104,37 @@ export default function CreateEventForm() {
                 update('event_type', type.value);
                 setStep(1);
               }}
-              className="group text-left p-5 rounded-2xl border-2 border-gray-100 bg-white hover:border-gray-300 hover:shadow-md transition-all duration-200 active:scale-[0.97]"
+              aria-label={`Select ${type.label} - ${type.desc}`}
+              className="group text-left p-5 rounded-2xl border-2 border-gray-200 bg-white hover:border-gray-900 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 transition-all duration-200 active:scale-[0.98]"
             >
-              <span className="text-3xl block mb-3">{type.emoji}</span>
-              <span className="text-base font-semibold text-gray-900 block mb-1">
+              <span className="text-3xl block mb-3" aria-hidden="true">{type.emoji}</span>
+              <span className="text-base font-bold text-gray-900 block mb-1">
                 {type.label}
               </span>
-              <span className="text-xs text-gray-400">{type.desc}</span>
+              <span className="text-xs text-gray-600 font-medium">{type.desc}</span>
             </button>
           ))}
         </div>
-      </div>
+      </section>
     );
   }
 
   // Step 1: Event details
   if (step === 1) {
     return (
-      <div className="max-w-xl mx-auto space-y-6 animate-fade-in">
+      <section aria-labelledby="event-details-heading" className="max-w-xl mx-auto space-y-6 animate-fade-in">
         <button
           onClick={() => setStep(0)}
-          className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-600 transition-colors"
+          aria-label="Back to event selection"
+          className="flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 rounded-lg p-1 transition-colors"
         >
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
           Back
         </button>
 
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-1">Event Details</h2>
-          <p className="text-gray-500 text-sm">
+          <h2 id="event-details-heading" className="text-2xl font-bold text-gray-900 mb-1">Event Details</h2>
+          <p className="text-gray-600 text-sm">
             Tell us the basics — the AI will handle the rest
           </p>
         </div>
@@ -140,13 +142,14 @@ export default function CreateEventForm() {
         <Card>
           <div className="space-y-5">
             <Input
-              label="Event Name"
+              label="Event Name *"
+              required
               placeholder="e.g., Priya & Rahul's Garden Wedding"
               value={form.title}
               onChange={(e) => update('title', e.target.value)}
             />
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input
                 label="Target Date"
                 type="date"
@@ -162,7 +165,7 @@ export default function CreateEventForm() {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input
                 label="Budget (₹)"
                 type="number"
@@ -181,14 +184,14 @@ export default function CreateEventForm() {
 
             <Input
               label="Theme / Vibe"
-              placeholder='e.g., "Rustic Garden Party" or "Elegant Black Tie"'
+              placeholder="e.g., Rustic Garden Party or Elegant Black Tie"
               value={form.theme_vibe}
               onChange={(e) => update('theme_vibe', e.target.value)}
             />
 
             <Textarea
-              label="Anything else you want the AI to know?"
-              placeholder="Special requirements, dietary restrictions, cultural traditions, must-have elements..."
+              label="Special Notes or Traditions"
+              placeholder="Dietary restrictions, cultural traditions, must-have elements..."
               rows={3}
               value={form.notes}
               onChange={(e) => update('notes', e.target.value)}
@@ -196,7 +199,7 @@ export default function CreateEventForm() {
           </div>
         </Card>
 
-        <div className="flex gap-3">
+        <div className="flex gap-3 flex-col sm:flex-row">
           <Button
             variant="outline"
             size="lg"
@@ -205,7 +208,7 @@ export default function CreateEventForm() {
               setStep(2);
               generateAIPlan();
             }}
-            icon={<Sparkles className="h-4 w-4" />}
+            icon={<Sparkles className="h-4 w-4" aria-hidden="true" />}
             disabled={!form.title || !form.event_type}
           >
             Generate AI Plan
@@ -216,7 +219,7 @@ export default function CreateEventForm() {
             className="flex-1"
             onClick={handleSubmit}
             isLoading={isLoading}
-            icon={<ArrowRight className="h-4 w-4" />}
+            icon={<ArrowRight className="h-4 w-4" aria-hidden="true" />}
             disabled={!form.title || !form.event_type}
           >
             Skip to Dashboard
@@ -224,66 +227,65 @@ export default function CreateEventForm() {
         </div>
 
         {error && (
-          <p className="text-sm text-red-500 text-center">{error}</p>
+          <p role="alert" className="text-sm font-medium text-red-600 text-center">{error}</p>
         )}
-      </div>
+      </section>
     );
   }
 
   // Step 2: AI-generated plan preview
   return (
-    <div className="max-w-2xl mx-auto space-y-6 animate-fade-in">
+    <section aria-labelledby="blueprint-heading" className="max-w-2xl mx-auto space-y-6 animate-fade-in">
       <button
         onClick={() => setStep(1)}
-        className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-600 transition-colors"
+        aria-label="Back to details edit"
+        className="flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 rounded-lg p-1 transition-colors"
       >
-        <ArrowLeft className="h-4 w-4" />
+        <ArrowLeft className="h-4 w-4" aria-hidden="true" />
         Back to details
       </button>
 
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-gray-900 flex items-center justify-center">
-          <Sparkles className="h-5 w-5 text-white" />
+        <div className="w-10 h-10 rounded-xl bg-gray-900 flex items-center justify-center shadow-sm">
+          <Sparkles className="h-5 w-5 text-white" aria-hidden="true" />
         </div>
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Your AI Event Blueprint</h2>
-          <p className="text-gray-500 text-sm">
-            Personalized plan based on your details
+          <h2 id="blueprint-heading" className="text-2xl font-bold text-gray-900">Your AI Event Blueprint</h2>
+          <p className="text-gray-600 text-sm">
+            Personalized plan based on your celebration requirements
           </p>
         </div>
       </div>
 
       <Card className="relative">
         {isGenerating ? (
-          <div className="flex flex-col items-center justify-center py-16 space-y-4">
-            <div className="relative">
-              <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center">
-                <Sparkles className="h-8 w-8 text-gray-400 animate-pulse-soft" />
-              </div>
+          <div className="flex flex-col items-center justify-center py-16 space-y-4" role="status" aria-label="Generating your plan">
+            <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center">
+              <Sparkles className="h-8 w-8 text-gray-600 animate-pulse-soft" aria-hidden="true" />
             </div>
             <div className="text-center">
-              <p className="text-sm font-medium text-gray-700">Crafting your perfect plan...</p>
-              <p className="text-xs text-gray-400 mt-1">
-                Analyzing budgets, timelines, and creative ideas
+              <p className="text-sm font-semibold text-gray-800">Crafting your custom blueprint...</p>
+              <p className="text-xs text-gray-600 mt-1">
+                Analyzing budgets, timelines, and vendor recommendations
               </p>
             </div>
           </div>
         ) : aiPlan ? (
-          <div className="ai-prose text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
+          <div className="ai-prose text-sm text-gray-800 leading-relaxed whitespace-pre-wrap max-h-[500px] overflow-y-auto pr-2">
             {aiPlan}
           </div>
         ) : null}
       </Card>
 
-      <div className="flex gap-3">
+      <div className="flex gap-3 flex-col sm:flex-row">
         <Button
           variant="secondary"
           size="lg"
           onClick={generateAIPlan}
           disabled={isGenerating}
-          icon={<Sparkles className="h-4 w-4" />}
+          icon={<Sparkles className="h-4 w-4" aria-hidden="true" />}
         >
-          Regenerate
+          Regenerate Plan
         </Button>
         <Button
           variant="primary"
@@ -291,7 +293,7 @@ export default function CreateEventForm() {
           className="flex-1"
           onClick={handleSubmit}
           isLoading={isLoading}
-          icon={<PartyPopper className="h-4 w-4" />}
+          icon={<PartyPopper className="h-4 w-4" aria-hidden="true" />}
           disabled={!form.title}
         >
           Create Event & Open Dashboard
@@ -299,8 +301,8 @@ export default function CreateEventForm() {
       </div>
 
       {error && (
-        <p className="text-sm text-red-500 text-center">{error}</p>
+        <p role="alert" className="text-sm font-medium text-red-600 text-center">{error}</p>
       )}
-    </div>
+    </section>
   );
 }

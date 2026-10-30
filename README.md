@@ -128,6 +128,51 @@ Lumina-Studio/
 
 ---
 
+## 🧪 Testing Suite (50 Automated Tests)
+
+Lumina Studio features a comprehensive automated test suite built with **Vitest**, **React Testing Library**, and **JSDOM**:
+
+```bash
+# Run the complete test suite
+npm run test
+
+# Run tests in watch mode
+npm run test:watch
+```
+
+### Test Coverage Highlights
+- ✅ **Database & Dual-Store**: Tests CRUD operations on events, timeline milestones, budget items, vendors, and guests, with full offline local storage fallback.
+- ✅ **AI Planning Engine**: Tests structured wedding, birthday, and community event blueprint generation with milestone and vendor sanity assertions.
+- ✅ **Security Suite**: Tests input sanitization against XSS/script tags, IP sliding-window rate limiters, and Zod schema validations.
+- ✅ **UI Components**: Tests accessibility ARIA attributes, button loading states, accessible progress bars, labels, and modal interactions.
+- ✅ **Frontend Utilities**: Tests currency formatters, date computations, theme harmonizers, and progress thresholds.
+
+---
+
+## 🔒 Enterprise-Grade Security Architecture
+
+1. **HTTP Security Headers**:
+   - `Content-Security-Policy`: Protects against cross-site scripting and unauthorized resources.
+   - `Strict-Transport-Security` (HSTS): Forces HTTPS with `max-age=63072000; includeSubDomains; preload`.
+   - `X-Frame-Options: DENY`: Prevents clickjacking attacks.
+   - `X-Content-Type-Options: nosniff`: Prevents MIME-sniffing exploits.
+   - `Referrer-Policy: strict-origin-when-cross-origin`: Restricts referrer data leakage.
+   - `Permissions-Policy`: Restricts camera, microphone, and geolocation access.
+2. **API Rate Limiting**: In-memory sliding-window rate limiter per client IP address preventing abuse and DDoS attacks.
+3. **Strict Zod Validation**: All API payloads (`/api/ai/plan`, `/api/ai/generate`) are validated against strict type schemas.
+4. **Input Sanitization**: Eliminates HTML tags, null bytes, script exploits, and malicious pseudo-protocols.
+
+---
+
+## ♿ WCAG 2.1 AA Accessibility (a11y)
+
+- **Semantic Landmarks**: `<header role="banner">`, `<main id="main-content">`, `<nav aria-label="...">`, `<footer role="contentinfo">`.
+- **Keyboard Navigation**: High-contrast `focus-visible:ring-2` focus outlines and a WCAG-compliant *"Skip to main content"* link.
+- **Screen Reader Support**: Full ARIA markup (`role="tablist"`, `role="tab"`, `role="tabpanel"`, `role="dialog"`, `role="progressbar"`, `role="checkbox"`).
+- **Color Contrast**: 100% compliant with WCAG AA 4.5:1 text-to-background contrast ratios.
+
+---
+
 ## 🛠️ Tech Stack
 
 | Layer | Technology | Purpose |
