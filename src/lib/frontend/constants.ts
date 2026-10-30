@@ -1,4 +1,4 @@
-export const APP_NAME = 'FêteCraft';
+export const APP_NAME = 'Lumina Studio';
 export const APP_TAGLINE = 'Your AI-Powered Celebration Architect';
 export const APP_DESCRIPTION =
   'Plan unforgettable weddings, birthdays, and community events with intelligent budgets, timelines, vendor checklists, and personalized creative ideas — all powered by AI.';

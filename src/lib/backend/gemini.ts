@@ -72,7 +72,7 @@ export async function askGemini(prompt: string, systemInstruction?: string): Pro
 }
 
 export function getEventPlannerSystemPrompt(): string {
-  return `You are "FêteCraft AI", a bespoke celebration and event planner. 
+  return `You are "Lumina AI", a bespoke celebration and event planner. 
 You specialize in weddings, birthdays, anniversaries, and community festivals.
 Provide creative, budget-conscious, realistic, and detailed advice. Format with clean markdown headers and bullet points.`;
 }

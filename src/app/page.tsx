@@ -111,7 +111,7 @@ export default function HomePage() {
       {/* Footer */}
       <footer className="border-t border-gray-100 mt-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 flex items-center justify-between text-xs text-gray-400">
-          <span>FêteCraft Studio</span>
+          <span>Lumina Studio</span>
           <span>Built with AI • PromptWars Challenge 5</span>
         </div>
       </footer>

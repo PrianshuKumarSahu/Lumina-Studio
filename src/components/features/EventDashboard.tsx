@@ -273,7 +273,7 @@ function OverviewTab({ event, onEventUpdate }: { event: Event; onEventUpdate: (e
         <Card>
           <div className="flex items-center gap-2 mb-4">
             <Sparkles className="h-5 w-5 text-gray-400" />
-            <h3 className="font-semibold text-gray-900">Ask FêteCraft AI</h3>
+            <h3 className="font-semibold text-gray-900">Ask Lumina AI</h3>
           </div>
           <p className="text-sm text-gray-400 mb-4">
             Ask anything about your event — budget tips, decoration ideas, venue suggestions, timeline advice...

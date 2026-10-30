@@ -1,4 +1,4 @@
--- FêteCraft Studio: Celebration & Event Planner Schema
+-- Lumina Studio: Celebration & Event Planner Schema
 -- Paste and run this in your Supabase SQL Editor (https://supabase.com/dashboard/project/_/sql)
 
 -- 1. Create Events Table

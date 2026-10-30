@@ -13,10 +13,10 @@ export default function Navbar() {
             </div>
             <div className="flex flex-col">
               <span className="text-base font-bold text-gray-900 tracking-tight leading-tight">
-                FêteCraft
+                Lumina Studio
               </span>
               <span className="text-[10px] text-gray-400 font-medium tracking-wide uppercase leading-tight">
-                AI Event Studio
+                AI Celebration Architect
               </span>
             </div>
           </Link>

@@ -1,4 +1,4 @@
-# 🎪 FêteCraft Studio — AI Celebration & Event Planner
+# 🎪 Lumina Studio — AI Celebration & Event Planner
 > **PromptWars Challenge 5: Celebration & Event Planner**  
 > A bespoke, GenAI-powered planning assistant that helps users organize weddings, birthdays, and community events with budgets, timelines, vendor checklists, and personalized creative ideas.
 

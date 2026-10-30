@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'FêteCraft — AI Celebration & Event Planner',
+  title: 'Lumina Studio — AI Celebration & Event Planner',
   description:
     'Plan unforgettable weddings, birthdays, and community events with intelligent budgets, timelines, vendor checklists, and personalized creative ideas — all powered by AI.',
   keywords: ['event planner', 'wedding planner', 'AI', 'celebration', 'budget', 'timeline'],
