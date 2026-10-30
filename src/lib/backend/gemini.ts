@@ -1,8 +1,9 @@
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY || '';
 
-const CANDIDATE_MODELS = [
-  'gemini-2.5-flash',
-  'gemini-1.5-flash',
+// High-speed, currently active Gemini models in Google AI Studio
+const ACTIVE_MODELS = [
+  'gemini-3.5-flash-lite',
+  'gemini-flash-lite-latest',
 ];
 
 interface GeminiResponse {
@@ -20,13 +21,13 @@ interface GeminiResponse {
 export async function askGemini(prompt: string, systemInstruction?: string): Promise<string> {
   // If we have an API key, try fast Gemini models
   if (GEMINI_API_KEY) {
-    for (const model of CANDIDATE_MODELS) {
+    for (const model of ACTIVE_MODELS) {
       try {
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
         const body: Record<string, unknown> = {
           contents: [{ parts: [{ text: prompt }] }],
           generationConfig: {
-            temperature: 0.85,
+            temperature: 0.8,
             topP: 0.95,
             maxOutputTokens: 2500,
           },
@@ -39,7 +40,7 @@ export async function askGemini(prompt: string, systemInstruction?: string): Pro
         }
 
         const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 4000);
+        const timeout = setTimeout(() => controller.abort(), 6500);
 
         const response = await fetch(url, {
           method: 'POST',
@@ -56,6 +57,9 @@ export async function askGemini(prompt: string, systemInstruction?: string): Pro
           if (text) {
             return text;
           }
+        } else {
+          const errData = await response.text();
+          console.warn(`Model ${model} returned error status ${response.status}:`, errData);
         }
       } catch (e) {
         console.warn(`Model ${model} attempt failed:`, e);
@@ -77,7 +81,6 @@ Provide creative, budget-conscious, realistic, and detailed advice. Format with 
 export function generateIntelligentEventPlan(prompt: string): string {
   const isWedding = /wedding|marriage|shaadi/i.test(prompt);
   const isBirthday = /birthday|bday|turning/i.test(prompt);
-  const isCommunity = /community|festival|fundraiser|carnival/i.test(prompt);
 
   if (isWedding) {
     return `### ✨ Curated Wedding Blueprint
